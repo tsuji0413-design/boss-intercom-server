@@ -1,50 +1,55 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1729"><title>BOSS INTERCOM V1.7</title><style>
-*{box-sizing:border-box}body{margin:0;background:#0e1729;color:#f5f8ff;font-family:system-ui,-apple-system,sans-serif}main{max-width:640px;margin:auto;padding:28px 20px 65px}h1{font-size:30px;margin:22px 0 8px}h1 span{color:#ff4b67}.sub{color:#afbed0}.panel{background:#1c2d43;border-radius:18px;padding:20px;margin:20px 0}.stat{font-size:19px;line-height:1.7}.green{color:#67dfac}label{display:block;margin:14px 0 6px}input{width:100%;background:#0e1729;border:1px solid #5c7795;border-radius:12px;padding:15px;color:white;font-size:18px}button{border:0;border-radius:12px;padding:15px 17px;color:white;font-weight:700;font-size:17px;cursor:pointer}button:disabled{opacity:.45}button.primary{background:#07935b}button.red{background:#a5263c}button.gray{background:#425c7a}button.blue{background:#2565b5}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.small{font-size:13px;color:#b6c4d6;line-height:1.7}#log{white-space:pre-wrap;font-size:14px;max-height:180px;overflow:auto}audio{width:100%;margin-top:12px} .notice{border-left:3px solid #f9b956;padding-left:12px}
-</style></head><body><main><h1>BOSS <span>INTERCOM</span></h1><p class="sub">V1.7 ・ Android 2台 音声通話テスト</p>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1729"><title>BOSS INTERCOM V1.8</title><style>
+*{box-sizing:border-box}body{margin:0;background:#0e1729;color:#f5f8ff;font-family:system-ui,-apple-system,sans-serif}main{max-width:640px;margin:auto;padding:24px 18px 60px}h1{font-size:30px;margin:20px 0 8px}h1 span{color:#ff4b67}.sub{color:#afbed0}.panel{background:#1c2d43;border-radius:18px;padding:19px;margin:18px 0}.stat{font-size:17px;line-height:1.9}.green{color:#67dfac}label{display:block;margin:12px 0 6px}input{width:100%;background:#0e1729;border:1px solid #5c7795;border-radius:12px;padding:15px;color:white;font-size:18px}button{border:0;border-radius:12px;padding:14px 16px;color:white;font-weight:700;font-size:16px;cursor:pointer}button:disabled{opacity:.45}.primary{background:#07935b}.red{background:#a5263c}.gray{background:#425c7a}.blue{background:#2565b5}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.small{font-size:13px;color:#b6c4d6;line-height:1.7}#log{white-space:pre-wrap;font-size:13px;max-height:220px;overflow:auto;overflow-wrap:anywhere}audio{width:100%;margin-top:12px}.notice{border-left:3px solid #f9b956;padding-left:12px}.diagnostic{font-size:15px;line-height:1.9;overflow-wrap:anywhere}
+</style></head><body><main><h1>BOSS <span>INTERCOM</span></h1><p class="sub">V1.8 ・ Android 2台 音声通話・受信診断</p>
 <section class="panel"><div class="stat">通信状態：<strong id="status" class="green">未接続</strong><br>参加者：<strong id="count">--</strong><br>音声状態：<strong id="voice">待機中</strong><br>遅延：<strong id="latency">--</strong></div></section>
-<section class="panel"><label>ペア番号（2台とも同じ番号）</label><input id="room" value="BOSS-001" maxlength="32" autocomplete="off"><div class="buttons"><button class="primary" id="connect">接続する</button><button class="red" id="disconnect" disabled>切断</button><button class="gray" id="ping" disabled>遅延を測定</button></div><div class="buttons"><button class="blue" id="mic" disabled>マイクをOFF</button><button class="gray" id="sound" disabled>音声を再生</button></div><audio id="remote" autoplay playsinline controls></audio><p class="small">接続時にマイクの使用を許可してください。相手の声が出ない場合は「音声を再生」を押してください。</p></section>
+<section class="panel"><label for="room">ペア番号（2台とも同じ番号）</label><input id="room" value="BOSS-001" maxlength="32" autocomplete="off"><div class="buttons"><button class="primary" id="connect">接続する</button><button class="red" id="disconnect" disabled>切断</button><button class="gray" id="ping" disabled>遅延を測定</button></div><div class="buttons"><button class="blue" id="mic" disabled>マイクをOFF</button><button class="gray" id="sound" disabled>音声を再生</button></div><audio id="remote" autoplay playsinline controls></audio><p class="small">2台とも「接続する」を押し、マイクを許可してください。聞こえない場合は「音声を再生」を押して、端末のメディア音量を上げてください。</p></section>
+<section class="panel"><b>音声診断（V1.8）</b><div class="diagnostic">受信トラック：<strong id="track">なし</strong><br>受信データ：<strong id="bytes">--</strong><br>再生状態：<strong id="playback">待機中</strong><br>ICE接続：<strong id="ice">--</strong></div><p class="small">「受信データ」が増えるのに聞こえない場合は、音量・出力先・再生制限が疑われます。数値が増えない場合は通信や相手のマイク状態を確認します。</p></section>
 <section class="panel"><b>通信ログ</b><div id="log"></div></section>
-<p class="small notice">試験版：2台まで。音声は端末間WebRTCで送信します。携帯回線やネットワークの条件によっては接続できない場合があります。PTT・Bluetoothボタン連動・バックグラウンド通話は未対応です。ペア番号を知る人が参加できるため、業務上の機密情報は話さないでください。運転中は操作しないでください。</p>
+<p class="small notice">試験版：2台まで。音声は端末間WebRTCで送信します。TURNサーバー未設定のため、回線によって接続できない場合があります。PTT・Bluetoothボタン連動・バックグラウンド通話は未対応。ペア番号を知る人が参加できるため、機密情報は話さないでください。運転中は操作しないでください。</p>
 </main><script>
-const $=id=>document.getElementById(id), log=s=>{const e=$('log');e.textContent=new Date().toLocaleTimeString()+' '+s+'\n'+e.textContent;};
-let ws=null,pc=null,stream=null,myId=null,peerId=null,muted=false,pingAt=0,pingId='';
-function status(s){$('status').textContent=s;}
-function voice(s){$('voice').textContent=s;}
+const $=id=>document.getElementById(id);const log=s=>{const e=$('log');e.textContent=new Date().toLocaleTimeString()+' '+s+'\n'+e.textContent;};
+let ws=null,pc=null,stream=null,peerId=null,muted=false,pingAt=0,pingId='',pendingCandidates=[],statsTimer=null,lastBytes=null,session=0;
+const status=s=>$('status').textContent=s;const voice=s=>$('voice').textContent=s;
 function controls(on){$('connect').disabled=on;$('disconnect').disabled=!on;$('ping').disabled=!on;$('mic').disabled=!on;$('sound').disabled=!on;$('room').disabled=on;}
-function send(o){if(ws?.readyState===1)ws.send(JSON.stringify(o));}
+function send(o){if(ws?.readyState===WebSocket.OPEN)ws.send(JSON.stringify(o));}
 function signal(data){if(peerId)send({type:'signal',to:peerId,data});}
-function closePeer(){if(pc){pc.ontrack=null;pc.close();pc=null;}$('remote').srcObject=null;peerId=null;voice('相手待ち');}
-async function makePeer(id,initiator){closePeer();peerId=id;pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
- pc.onicecandidate=e=>{if(e.candidate)signal({candidate:e.candidate.toJSON()});};
- pc.ontrack=e=>{const audio=$('remote');audio.srcObject=e.streams[0];audio.play().catch(()=>log('音声を再生ボタンを押してください'));};
- pc.onconnectionstatechange=()=>{if(!pc)return;voice(pc.connectionState==='connected'?'音声接続済み':pc.connectionState);if(pc.connectionState==='failed')log('音声接続に失敗しました（回線制限の可能性）');};
- stream.getTracks().forEach(t=>pc.addTrack(t,stream));
- if(initiator){const offer=await pc.createOffer();await pc.setLocalDescription(offer);signal({description:pc.localDescription.toJSON()});}
+function resetDiagnostics(){$('track').textContent='なし';$('bytes').textContent='--';$('playback').textContent='待機中';$('ice').textContent='--';lastBytes=null;}
+function stopStats(){if(statsTimer){clearInterval(statsTimer);statsTimer=null;}}
+async function updateStats(){const current=pc;if(!current)return;try{const reports=await current.getStats();if(pc!==current)return;let total=0,found=false;reports.forEach(r=>{if(r.type==='inbound-rtp'&&(r.kind==='audio'||r.mediaType==='audio')&&!r.isRemote){found=true;total+=r.bytesReceived||0;}});if(found){$('bytes').textContent=total.toLocaleString()+' bytes'+(lastBytes!==null?(total>lastBytes?'（増加中）':'（変化なし）'):'');lastBytes=total;}else $('bytes').textContent='受信統計なし';}catch(e){log('統計取得エラー: '+e.message);}}
+function closePeer(){stopStats();const old=pc;pc=null;if(old){old.ontrack=null;old.onicecandidate=null;old.onconnectionstatechange=null;old.oniceconnectionstatechange=null;old.close();}const a=$('remote');a.pause();a.srcObject=null;peerId=null;pendingCandidates=[];resetDiagnostics();voice('相手待ち');}
+async function playRemote(){const a=$('remote');try{if(!a.srcObject){$('playback').textContent='受信音声なし';log('受信音声がまだありません');return;}a.muted=false;a.volume=1;await a.play();$('playback').textContent='再生中';log('音声再生を開始');}catch(e){$('playback').textContent='再生失敗: '+e.name;log('再生エラー: '+e.message);}}
+async function makePeer(id,initiator){closePeer();peerId=id;const current=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});pc=current;
+ current.onicecandidate=e=>{if(e.candidate&&pc===current)signal({candidate:e.candidate.toJSON()});};
+ current.ontrack=e=>{if(pc!==current)return;const audio=$('remote');let received=e.streams?.[0];if(!received){received=new MediaStream([e.track]);}audio.srcObject=received;$('track').textContent=e.track.readyState+(e.track.muted?' / muted':' / active');log('相手の音声トラックを受信');e.track.onmute=()=>{$('track').textContent='muted';log('受信音声トラックが一時停止');};e.track.onunmute=()=>{$('track').textContent='live / active';log('受信音声トラックが再開');};e.track.onended=()=>{$('track').textContent='ended';log('受信音声トラックが終了');};playRemote();};
+ current.onconnectionstatechange=()=>{if(pc!==current)return;voice(current.connectionState==='connected'?'音声接続済み':current.connectionState);log('音声接続: '+current.connectionState);if(current.connectionState==='failed')log('音声接続失敗：回線制限の可能性');};
+ current.oniceconnectionstatechange=()=>{if(pc===current)$('ice').textContent=current.iceConnectionState;};
+ stream.getTracks().forEach(t=>current.addTrack(t,stream));stopStats();statsTimer=setInterval(updateStats,1500);
+ if(initiator){const offer=await current.createOffer();if(pc!==current)return;await current.setLocalDescription(offer);signal({description:current.localDescription.toJSON()});}
 }
-async function incoming(m){const data=m.data;if(!data||!stream)return;
- try{if(data.description){if(!pc)await makePeer(m.from,false);if(m.from!==peerId)return;await pc.setRemoteDescription(data.description);if(data.description.type==='offer'){const answer=await pc.createAnswer();await pc.setLocalDescription(answer);signal({description:pc.localDescription.toJSON()});}}
- else if(data.candidate&&pc&&m.from===peerId){await pc.addIceCandidate(data.candidate);}}
- catch(e){log('音声交渉エラー: '+e.message);}
-}
+async function flushCandidates(){if(!pc?.remoteDescription)return;const queued=pendingCandidates.splice(0);for(const c of queued)await pc.addIceCandidate(c);}
+async function incoming(m){const data=m.data;if(!data||!stream)return;try{
+ if(data.description){if(!pc){if(data.description.type!=='offer')return;await makePeer(m.from,false);}if(m.from!==peerId)return;await pc.setRemoteDescription(data.description);await flushCandidates();if(data.description.type==='offer'){const answer=await pc.createAnswer();await pc.setLocalDescription(answer);signal({description:pc.localDescription.toJSON()});}}
+ else if(data.candidate&&pc&&m.from===peerId){if(pc.remoteDescription)await pc.addIceCandidate(data.candidate);else pendingCandidates.push(data.candidate);}
+ }catch(e){log('音声交渉エラー: '+e.message);}}
 async function connect(){if(ws)return;const room=$('room').value.trim();if(!/^[-A-Za-z0-9_]{4,32}$/.test(room)){alert('ペア番号は英数字4〜32文字で入力してください');return;}
- try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:false});}
- catch(e){log('マイクの許可が必要です: '+e.message);return;}
- status('接続中');controls(true);ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host);
- ws.onopen=()=>send({type:'join',room});
- ws.onmessage=async ev=>{let m;try{m=JSON.parse(ev.data);}catch{return;}
- if(m.type==='joined'){myId=m.id;status('接続済み');voice('相手待ち');log('サーバーに接続');if(m.peers.length){await makePeer(m.peers[0],true);}}
+ const currentSession=++session;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});}catch(e){log('マイクの許可が必要です: '+e.message);return;}
+ if(currentSession!==session){stream.getTracks().forEach(t=>t.stop());stream=null;return;}muted=false;$('mic').textContent='マイクをOFF';status('接続中');controls(true);const socket=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host);ws=socket;
+ socket.onopen=()=>{if(ws===socket)send({type:'join',room});};
+ socket.onmessage=async ev=>{if(ws!==socket)return;let m;try{m=JSON.parse(ev.data);}catch{return;}
+ if(m.type==='joined'){status('接続済み');voice('相手待ち');log('サーバーに接続');if(m.peers.length)await makePeer(m.peers[0],true);}
  if(m.type==='presence')$('count').textContent=m.count+'台';
  if(m.type==='signal')await incoming(m);
  if(m.type==='peer-left'&&m.id===peerId){closePeer();log('相手が切断しました');}
- if(m.type==='pong'&&m.id===pingId)$('latency').textContent=(Math.round(performance.now()-pingAt))+' ms';
+ if(m.type==='pong'&&m.id===pingId)$('latency').textContent=Math.round(performance.now()-pingAt)+' ms';
  if(m.type==='error'){log(m.message);alert(m.message);disconnect();}
  };
- ws.onerror=()=>log('サーバー通信エラー');ws.onclose=()=>{if(ws)disconnect();};
+ socket.onerror=()=>log('サーバー通信エラー');socket.onclose=()=>{if(ws===socket)disconnect();};
 }
-function disconnect(){const old=ws;ws=null;if(old){old.onclose=null;old.close();}closePeer();if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}muted=false;$('mic').textContent='マイクをOFF';status('未接続');voice('待機中');$('count').textContent='--';controls(false);log('切断しました');}
+function disconnect(){session++;const old=ws;ws=null;if(old){old.onclose=null;old.close();}closePeer();if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}muted=false;$('mic').textContent='マイクをOFF';status('未接続');voice('待機中');$('count').textContent='--';controls(false);log('切断しました');}
+$('remote').addEventListener('playing',()=>{$('playback').textContent='再生中';});$('remote').addEventListener('pause',()=>{$('playback').textContent='一時停止';});$('remote').addEventListener('error',()=>{log('音声プレーヤーエラー');$('playback').textContent='プレーヤーエラー';});
 $('connect').onclick=connect;$('disconnect').onclick=disconnect;
 $('ping').onclick=()=>{pingId=String(Date.now());pingAt=performance.now();send({type:'ping',id:pingId});};
 $('mic').onclick=()=>{if(!stream)return;muted=!muted;stream.getAudioTracks().forEach(t=>t.enabled=!muted);$('mic').textContent=muted?'マイクをON':'マイクをOFF';log(muted?'マイクOFF':'マイクON');};
-$('sound').onclick=()=>{$('remote').play().then(()=>log('音声再生を開始')).catch(e=>log('再生エラー: '+e.message));};
+$('sound').onclick=playRemote;
 window.addEventListener('pagehide',()=>{if(ws)disconnect();});
 </script></body></html>

@@ -3,7 +3,7 @@ const {WebSocketServer,WebSocket}=require('ws');
 const PORT=Number(process.env.PORT||8080);
 const server=http.createServer((req,res)=>{
  const url=new URL(req.url,'http://localhost');
- if(url.pathname==='/health'){res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});return res.end(JSON.stringify({ok:true,app:'BOSS INTERCOM',version:'1.7.0',mode:'webrtc-audio-test'}));}
+ if(url.pathname==='/health'){res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});return res.end(JSON.stringify({ok:true,app:'BOSS INTERCOM',version:'1.8.0',mode:'webrtc-audio-diagnostics'}));}
  if(url.pathname==='/'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});return fs.createReadStream(path.join(__dirname,'index.html')).pipe(res);}
  res.writeHead(404);res.end('Not Found');
 });
@@ -18,7 +18,7 @@ wss.on('connection',ws=>{
   if(m.type==='join'){
    if(typeof m.room!=='string'||!/^[-A-Za-z0-9_]{4,32}$/.test(m.room))return send(ws,{type:'error',message:'ペア番号は英数字4〜32文字で入力してください'});
    leave(ws);let peers=rooms.get(m.room);if(!peers){peers=new Set();rooms.set(m.room,peers);}
-   if(peers.size>=2)return send(ws,{type:'error',message:'V1.7は2台までのテスト版です'});
+   if(peers.size>=2)return send(ws,{type:'error',message:'V1.8は2台までのテスト版です'});
    ws.room=m.room;send(ws,{type:'joined',id:ws.id,peers:[...peers].map(x=>x.id)});peers.add(ws);announce(ws.room);
   }else if(m.type==='signal'&&ws.room&&typeof m.to==='string'&&m.data&&typeof m.data==='object'){
    const peer=[...(rooms.get(ws.room)||[])].find(x=>x.id===m.to);
@@ -28,4 +28,4 @@ wss.on('connection',ws=>{
  ws.on('close',()=>leave(ws));ws.on('error',()=>leave(ws));
 });
 setInterval(()=>{for(const ws of wss.clients){if(!ws.isAlive){ws.terminate();continue;}ws.isAlive=false;ws.ping();}},30000);
-server.listen(PORT,'0.0.0.0',()=>console.log('BOSS INTERCOM V1.7 WebRTC signaling on '+PORT));
+server.listen(PORT,'0.0.0.0',()=>console.log('BOSS INTERCOM V1.8 WebRTC signaling on '+PORT));

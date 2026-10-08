@@ -1,5 +1,15 @@
-BOSS INTERCOM V1.7 / 2-device WebRTC audio experiment
-Upload all four files to the same GitHub repository, commit, deploy latest commit in Render.
-V1.6 ZIP remains unchanged. /health returns version 1.7.0.
-Use HTTPS, grant microphone permission, connect two devices to same room.
-This is a test, not production-grade intercom: no TURN relay, no login, no PTT, no guaranteed background audio.
+BOSS INTERCOM V1.8 — 2台通話の受信診断版
+
+V1.7は保存し、V1.8の4ファイルをGitHubリポジトリのルートにアップロードしてデプロイしてください。
+Render: Build Command npm install / Start Command npm start
+
+改良点：
+- ICE candidateをリモートSDP設定まで保持
+- 音声再生状態、受信バイト数、音声トラック状態を画面に表示
+- 再生失敗時のログ表示と再生ボタン
+- 音声トラックのmute/unmute/endを監視
+- 通話切断後のリソース整理
+
+注意：TURNサーバーは未設定のため、一部の携帯回線では音声接続できない場合があります。
+受信バイトが増えるのに聞こえない場合は端末の音量、出力先、再生制限を確認してください。
+運転中に操作しないでください。
