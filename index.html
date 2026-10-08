@@ -1,1 +1,50 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BOSS INTERCOM V1.6</title><style>body{margin:0;background:#0d1727;color:white;font-family:system-ui,sans-serif}main{max-width:520px;margin:auto;padding:22px}h1{font-size:27px}h1 span{color:#fb455d}.card{background:#1b2b40;border-radius:15px;padding:17px;margin:13px 0}label{display:block;margin:9px 0}input{width:100%;box-sizing:border-box;padding:13px;background:#0d1727;color:white;border:1px solid #54708b;border-radius:9px;font-size:16px}button{padding:15px;border:0;border-radius:11px;color:white;background:#087d4b;font-size:16px;font-weight:bold;margin:5px 4px 5px 0}button.secondary{background:#38526f}button.danger{background:#a32435}small{color:#b4c3d4}#log{white-space:pre-wrap;font-size:13px;max-height:190px;overflow:auto}strong{color:#75dfaa}</style></head><body><main><h1>BOSS <span>INTERCOM</span></h1><small>V1.6 · 通信接続診断（音声未実装）</small><div class="card"><div>通信状態：<strong id="status">未接続</strong></div><div>遅延：<strong id="latency">--</strong></div><div>参加者：<strong id="count">--</strong></div></div><div class="card"><label>接続サーバー（wss://）<input id="server" placeholder="wss://your-server.example.com"></label><label>ペア番号<input id="room" value="BOSS-001" maxlength="32"></label><button id="connect">接続する</button><button id="disconnect" class="danger">切断</button><button id="ping" class="secondary">遅延を測定</button></div><div class="card"><b>通信ログ</b><div id="log"></div></div><small>これは通信確認用の試作品です。このページとWebSocketサーバーは同じURLで公開されます。PTT・Bluetooth・音声通話は未実装です。</small></main><script>document.getElementById('server').value=location.protocol==='https:'?'wss://'+location.host:'';let ws=null, timer=null, pending=new Map(),reconnect=false;const el=id=>document.getElementById(id);function log(s){el('log').textContent=new Date().toLocaleTimeString()+' '+s+'\n'+el('log').textContent}function stop(){reconnect=false;clearTimeout(timer);if(ws){ws.onclose=null;ws.close();ws=null}el('status').textContent='未接続';el('count').textContent='--'}function join(){const url=el('server').value.trim(),room=el('room').value.trim();if(!/^wss:\/\//i.test(url)){log('wss:// の接続先を入力してください');return}if(!room){log('ペア番号が必要です');return}if(ws&&ws.readyState<=1)ws.close();reconnect=true;el('status').textContent='接続中';try{ws=new WebSocket(url)}catch(e){log('URLが不正です');return}ws.onopen=()=>{el('status').textContent='接続済み';log('サーバーに接続');ws.send(JSON.stringify({type:'join',room}))};ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch{return}if(m.type==='presence'){el('count').textContent=m.count+'台'}if(m.type==='pong'&&pending.has(m.id)){el('latency').textContent=Math.round(performance.now()-pending.get(m.id))+' ms';pending.delete(m.id)}if(m.type==='error')log('エラー: '+m.message)};ws.onclose=()=>{el('status').textContent='切断';log('通信切断');if(reconnect)timer=setTimeout(join,4000)};ws.onerror=()=>log('接続エラー（サーバー公開状況を確認）')};el('connect').onclick=join;el('disconnect').onclick=()=>{stop();log('手動切断')};el('ping').onclick=()=>{if(!ws||ws.readyState!==1){log('先に接続してください');return}const id=String(Date.now());pending.set(id,performance.now());ws.send(JSON.stringify({type:'ping',id}));setTimeout(()=>{if(pending.has(id)){pending.delete(id);log('応答なし')}},5000)};</script></body></html>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1729"><title>BOSS INTERCOM V1.7</title><style>
+*{box-sizing:border-box}body{margin:0;background:#0e1729;color:#f5f8ff;font-family:system-ui,-apple-system,sans-serif}main{max-width:640px;margin:auto;padding:28px 20px 65px}h1{font-size:30px;margin:22px 0 8px}h1 span{color:#ff4b67}.sub{color:#afbed0}.panel{background:#1c2d43;border-radius:18px;padding:20px;margin:20px 0}.stat{font-size:19px;line-height:1.7}.green{color:#67dfac}label{display:block;margin:14px 0 6px}input{width:100%;background:#0e1729;border:1px solid #5c7795;border-radius:12px;padding:15px;color:white;font-size:18px}button{border:0;border-radius:12px;padding:15px 17px;color:white;font-weight:700;font-size:17px;cursor:pointer}button:disabled{opacity:.45}button.primary{background:#07935b}button.red{background:#a5263c}button.gray{background:#425c7a}button.blue{background:#2565b5}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.small{font-size:13px;color:#b6c4d6;line-height:1.7}#log{white-space:pre-wrap;font-size:14px;max-height:180px;overflow:auto}audio{width:100%;margin-top:12px} .notice{border-left:3px solid #f9b956;padding-left:12px}
+</style></head><body><main><h1>BOSS <span>INTERCOM</span></h1><p class="sub">V1.7 ・ Android 2台 音声通話テスト</p>
+<section class="panel"><div class="stat">通信状態：<strong id="status" class="green">未接続</strong><br>参加者：<strong id="count">--</strong><br>音声状態：<strong id="voice">待機中</strong><br>遅延：<strong id="latency">--</strong></div></section>
+<section class="panel"><label>ペア番号（2台とも同じ番号）</label><input id="room" value="BOSS-001" maxlength="32" autocomplete="off"><div class="buttons"><button class="primary" id="connect">接続する</button><button class="red" id="disconnect" disabled>切断</button><button class="gray" id="ping" disabled>遅延を測定</button></div><div class="buttons"><button class="blue" id="mic" disabled>マイクをOFF</button><button class="gray" id="sound" disabled>音声を再生</button></div><audio id="remote" autoplay playsinline controls></audio><p class="small">接続時にマイクの使用を許可してください。相手の声が出ない場合は「音声を再生」を押してください。</p></section>
+<section class="panel"><b>通信ログ</b><div id="log"></div></section>
+<p class="small notice">試験版：2台まで。音声は端末間WebRTCで送信します。携帯回線やネットワークの条件によっては接続できない場合があります。PTT・Bluetoothボタン連動・バックグラウンド通話は未対応です。ペア番号を知る人が参加できるため、業務上の機密情報は話さないでください。運転中は操作しないでください。</p>
+</main><script>
+const $=id=>document.getElementById(id), log=s=>{const e=$('log');e.textContent=new Date().toLocaleTimeString()+' '+s+'\n'+e.textContent;};
+let ws=null,pc=null,stream=null,myId=null,peerId=null,muted=false,pingAt=0,pingId='';
+function status(s){$('status').textContent=s;}
+function voice(s){$('voice').textContent=s;}
+function controls(on){$('connect').disabled=on;$('disconnect').disabled=!on;$('ping').disabled=!on;$('mic').disabled=!on;$('sound').disabled=!on;$('room').disabled=on;}
+function send(o){if(ws?.readyState===1)ws.send(JSON.stringify(o));}
+function signal(data){if(peerId)send({type:'signal',to:peerId,data});}
+function closePeer(){if(pc){pc.ontrack=null;pc.close();pc=null;}$('remote').srcObject=null;peerId=null;voice('相手待ち');}
+async function makePeer(id,initiator){closePeer();peerId=id;pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
+ pc.onicecandidate=e=>{if(e.candidate)signal({candidate:e.candidate.toJSON()});};
+ pc.ontrack=e=>{const audio=$('remote');audio.srcObject=e.streams[0];audio.play().catch(()=>log('音声を再生ボタンを押してください'));};
+ pc.onconnectionstatechange=()=>{if(!pc)return;voice(pc.connectionState==='connected'?'音声接続済み':pc.connectionState);if(pc.connectionState==='failed')log('音声接続に失敗しました（回線制限の可能性）');};
+ stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+ if(initiator){const offer=await pc.createOffer();await pc.setLocalDescription(offer);signal({description:pc.localDescription.toJSON()});}
+}
+async function incoming(m){const data=m.data;if(!data||!stream)return;
+ try{if(data.description){if(!pc)await makePeer(m.from,false);if(m.from!==peerId)return;await pc.setRemoteDescription(data.description);if(data.description.type==='offer'){const answer=await pc.createAnswer();await pc.setLocalDescription(answer);signal({description:pc.localDescription.toJSON()});}}
+ else if(data.candidate&&pc&&m.from===peerId){await pc.addIceCandidate(data.candidate);}}
+ catch(e){log('音声交渉エラー: '+e.message);}
+}
+async function connect(){if(ws)return;const room=$('room').value.trim();if(!/^[-A-Za-z0-9_]{4,32}$/.test(room)){alert('ペア番号は英数字4〜32文字で入力してください');return;}
+ try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:false});}
+ catch(e){log('マイクの許可が必要です: '+e.message);return;}
+ status('接続中');controls(true);ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host);
+ ws.onopen=()=>send({type:'join',room});
+ ws.onmessage=async ev=>{let m;try{m=JSON.parse(ev.data);}catch{return;}
+ if(m.type==='joined'){myId=m.id;status('接続済み');voice('相手待ち');log('サーバーに接続');if(m.peers.length){await makePeer(m.peers[0],true);}}
+ if(m.type==='presence')$('count').textContent=m.count+'台';
+ if(m.type==='signal')await incoming(m);
+ if(m.type==='peer-left'&&m.id===peerId){closePeer();log('相手が切断しました');}
+ if(m.type==='pong'&&m.id===pingId)$('latency').textContent=(Math.round(performance.now()-pingAt))+' ms';
+ if(m.type==='error'){log(m.message);alert(m.message);disconnect();}
+ };
+ ws.onerror=()=>log('サーバー通信エラー');ws.onclose=()=>{if(ws)disconnect();};
+}
+function disconnect(){const old=ws;ws=null;if(old){old.onclose=null;old.close();}closePeer();if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}muted=false;$('mic').textContent='マイクをOFF';status('未接続');voice('待機中');$('count').textContent='--';controls(false);log('切断しました');}
+$('connect').onclick=connect;$('disconnect').onclick=disconnect;
+$('ping').onclick=()=>{pingId=String(Date.now());pingAt=performance.now();send({type:'ping',id:pingId});};
+$('mic').onclick=()=>{if(!stream)return;muted=!muted;stream.getAudioTracks().forEach(t=>t.enabled=!muted);$('mic').textContent=muted?'マイクをON':'マイクをOFF';log(muted?'マイクOFF':'マイクON');};
+$('sound').onclick=()=>{$('remote').play().then(()=>log('音声再生を開始')).catch(e=>log('再生エラー: '+e.message));};
+window.addEventListener('pagehide',()=>{if(ws)disconnect();});
+</script></body></html>

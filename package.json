@@ -1,11 +1,1 @@
-{
-  "name": "boss-intercom-v1-6-diagnostic",
-  "version": "1.6.0",
-  "private": true,
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "ws": "^8.18.0"
-  }
-}
+{"name":"boss-intercom-v1-7","version":"1.7.0","private":true,"scripts":{"start":"node server.js"},"dependencies":{"ws":"^8.18.0"}}

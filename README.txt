@@ -1,13 +1,5 @@
-BOSS INTERCOM V1.6 — 通信診断版
-
-Render Web Service (Node):
-Build Command: npm install
-Start Command: npm start
-Root Directory: 空欄
-
-/ : 接続診断画面
-/health : JSONで稼働確認
-
-音声通話、PTT、Bluetooth制御はまだありません。
-ペア番号は認証ではありません。実際の業務通信には認証・暗号化設計と運用テストが必要です。
-Render Freeは休止するため業務用常時接続には適しません。
+BOSS INTERCOM V1.7 / 2-device WebRTC audio experiment
+Upload all four files to the same GitHub repository, commit, deploy latest commit in Render.
+V1.6 ZIP remains unchanged. /health returns version 1.7.0.
+Use HTTPS, grant microphone permission, connect two devices to same room.
+This is a test, not production-grade intercom: no TURN relay, no login, no PTT, no guaranteed background audio.
